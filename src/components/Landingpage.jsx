@@ -18,7 +18,7 @@ const TradingViewLanding = () => {
             <div className="absolute inset-0 w-full h-full flex z-10 pointer-events-none"
                 style={{
                     width: '100vw', // 2/5 of viewport width
-                    left: '15vw',  // start at 1/5
+                    left: '10vw',  // start at 1/5
                 }}>
                 <div className="relative w-3/5 min-w-[350px] max-w-[700px] h-full">
                     <img

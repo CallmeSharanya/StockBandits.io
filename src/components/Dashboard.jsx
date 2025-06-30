@@ -364,7 +364,7 @@ const TradingDashboard = () => {
                 <div className="p-4">
                     <div className="flex items-center justify-between mb-8">
                         {!sidebarCollapsed && (
-                            <h1 className="text-xl font-bold text-white">StockBandits.io</h1>
+                            <h2 className="text-xl font-bold text-white">StockBandits.io</h2>
                         )}
                         <button
                             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}

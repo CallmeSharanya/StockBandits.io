@@ -250,6 +250,8 @@ export default function MABpage() {
     const [dailyData, setDailyData] = useState({});
     const [loadingData, setLoadingData] = useState(false);
     const [activeTab, setActiveTab] = useState('mab'); // 'mab', 'weekly', 'daily'
+    const [currentPrices, setCurrentPrices] = useState([]);
+    const [loadingPrices, setLoadingPrices] = useState(false);
 
     useEffect(() => {
         if (selectedStocks.length === 10) {
@@ -430,6 +432,30 @@ export default function MABpage() {
         return null;
     };
 
+    // Function to fetch current prices for all stocks
+    const viewCurrentPrices = async () => {
+        setLoadingPrices(true);
+        const prices = [];
+        for (const symbol of STOCKS_LIST) {
+            try {
+                const res = await fetch(
+                    `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`
+                );
+                const data = await res.json();
+                const price = parseFloat(data["Global Quote"]?.["05. price"] || NaN);
+                if (price > 0) {
+                    prices.push({ symbol, price });
+                }
+            } catch (error) {
+                // Optionally log error, but do not push NaN
+            }
+            // To avoid hitting API rate limits
+            await delay(1200);
+        }
+        setCurrentPrices(prices);
+        setLoadingPrices(false);
+    };
+
     return (
         <div className="app-container dark-theme">
             <div className="header-section">
@@ -544,6 +570,9 @@ export default function MABpage() {
                         )}
                         <button onClick={reset} className="btn reset">
                             🔄 Reset All
+                        </button>
+                        <button onClick={viewCurrentPrices} disabled={loadingPrices} className="btn info">
+                            {loadingPrices ? "⏳ Fetching Prices..." : "💲 View Current Prices"}
                         </button>
                     </div>
 
@@ -668,6 +697,21 @@ export default function MABpage() {
                             )}
                         </div>
                     </div>
+
+                    {/* Current Prices Section */}
+                    {currentPrices.filter(({ price }) => price > 0).length > 0 && (
+                        <div className="section-card">
+                            <h2>💲 Current Stock Prices</h2>
+                            <ul className="current-prices-list" style={{ listStyle: 'none', padding: 0 }}>
+                                {currentPrices.filter(({ price }) => price > 0).map(({ symbol, price }) => (
+                                    <li key={symbol} className="current-price-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2em', padding: '0.7em 1.2em', borderRadius: '8px', background: 'rgba(255,255,255,0.04)' }}>
+                                        <span className="stock-symbol" style={{ fontWeight: 600, fontSize: '1.1em', letterSpacing: '0.05em' }}>{symbol}</span>
+                                        <span className="stock-price" style={{ fontWeight: 500, color: '#10B981', fontSize: '1.1em' }}>{`$${price.toFixed(2)}`}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </>
             )}
 
