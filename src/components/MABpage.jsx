@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from "recharts";
 import "../App.css";
 
-const API_KEY = "WUMOY4I2MWJSGM68";
+const API_KEY = import.meta.env.VITE_ALPHA_VANTAGE_API_KEY;
 
 const STOCKS_LIST = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA", "JPM",
@@ -36,10 +36,10 @@ function fetchIntradayReturn(symbol) {
             const earliest = ts[sortedTimes[sortedTimes.length - 1]];
             const latestPrice = parseFloat(latest["4. close"]);
             const openPrice = parseFloat(earliest["1. open"]);
-            
+
             // Calculate percentage change
             const percentageChange = ((latestPrice - openPrice) / openPrice) * 100;
-            
+
             // Add some realistic market noise to make the simulation more interesting
             const marketNoise = (Math.random() - 0.5) * 0.5; // ±0.25% noise
             return percentageChange + marketNoise;
@@ -117,7 +117,7 @@ async function fetchWeeklyData(symbol) {
             `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${API_KEY}`
         );
         const data = await response.json();
-        
+
         if (data["Error Message"] || data["Note"]) {
             console.error("Alpha Vantage API Error:", data["Error Message"] || data["Note"]);
             return [];
@@ -127,7 +127,7 @@ async function fetchWeeklyData(symbol) {
         if (!timeSeries) return [];
 
         const entries = Object.entries(timeSeries).slice(0, 7); // Last 7 days
-        
+
         return entries
             .map(([date, values]) => ({
                 date: new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
@@ -150,7 +150,7 @@ async function fetchDailyData(symbol) {
             `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=15min&apikey=${API_KEY}`
         );
         const data = await response.json();
-        
+
         if (data["Error Message"] || data["Note"]) {
             console.error("Alpha Vantage API Error:", data["Error Message"] || data["Note"]);
             return [];
@@ -160,7 +160,7 @@ async function fetchDailyData(symbol) {
         if (!timeSeries) return [];
 
         const entries = Object.entries(timeSeries).slice(0, 32); // Last 8 hours (32 15-min intervals)
-        
+
         return entries
             .map(([date, values]) => ({
                 time: new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
@@ -279,7 +279,7 @@ export default function MABpage() {
                 fetchWeeklyData(symbol),
                 fetchDailyData(symbol)
             ]);
-            
+
             setWeeklyData(prev => ({ ...prev, [symbol]: weekly }));
             setDailyData(prev => ({ ...prev, [symbol]: daily }));
         } catch (error) {
@@ -465,21 +465,21 @@ export default function MABpage() {
 
             {/* Navigation Tabs */}
             <div className="tab-navigation">
-                <button 
+                <button
                     className={`tab-button ${activeTab === 'mab' ? 'active' : ''}`}
                     onClick={() => setActiveTab('mab')}
                 >
                     <span className="tab-icon">🎯</span>
                     MAB Algorithm
                 </button>
-                <button 
+                <button
                     className={`tab-button ${activeTab === 'weekly' ? 'active' : ''}`}
                     onClick={() => setActiveTab('weekly')}
                 >
                     <span className="tab-icon">📈</span>
                     Weekly Analysis
                 </button>
-                <button 
+                <button
                     className={`tab-button ${activeTab === 'daily' ? 'active' : ''}`}
                     onClick={() => setActiveTab('daily')}
                 >
@@ -592,8 +592,8 @@ export default function MABpage() {
                                     </span>
                                 </div>
                                 <p className="recommendation-text">
-                                    Based on {finalResults.algorithm} analysis, {finalResults.stock} shows the 
-                                    {parseFloat(finalResults.avgReward) >= 0 ? ' best average return' : ' least negative return'} 
+                                    Based on {finalResults.algorithm} analysis, {finalResults.stock} shows the
+                                    {parseFloat(finalResults.avgReward) >= 0 ? ' best average return' : ' least negative return'}
                                     among the selected stocks.
                                 </p>
                             </div>
@@ -613,8 +613,8 @@ export default function MABpage() {
                                     <AreaChart data={historicalData} margin={{ top: 10, right: 30, left: 20, bottom: 80 }}>
                                         <defs>
                                             <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#4CAF50" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="#4CAF50" stopOpacity={0.1}/>
+                                                <stop offset="5%" stopColor="#4CAF50" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#4CAF50" stopOpacity={0.1} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#555" />
@@ -653,14 +653,14 @@ export default function MABpage() {
 
                     <div className="section-card logs-card">
                         <h2>📝 Action Logs</h2>
-                        
+
                         {/* Add explanation about returns */}
                         <div className="info-section">
                             <div className="info-box">
                                 <h4>📊 Understanding Returns</h4>
                                 <p>
-                                    <strong>Positive values (+)</strong> indicate stock price increases (gains)<br/>
-                                    <strong>Negative values (-)</strong> indicate stock price decreases (losses)<br/>
+                                    <strong>Positive values (+)</strong> indicate stock price increases (gains)<br />
+                                    <strong>Negative values (-)</strong> indicate stock price decreases (losses)<br />
                                     <em>This is normal market behavior - stocks can go up or down!</em>
                                 </p>
                                 <div className="return-examples">
@@ -669,7 +669,7 @@ export default function MABpage() {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="logs-container">
                             {logs.length > 0 ? (
                                 logs.map((log, idx) => (
@@ -720,7 +720,7 @@ export default function MABpage() {
                 <div className="section-card">
                     <h2>📈 Weekly Stock Analysis (Past 7 Days)</h2>
                     <div className="stock-selector">
-                        <select 
+                        <select
                             onChange={(e) => e.target.value && loadStockData(e.target.value)}
                             className="stock-dropdown"
                         >
@@ -730,7 +730,7 @@ export default function MABpage() {
                             ))}
                         </select>
                     </div>
-                    
+
                     {loadingData && (
                         <div className="loading-container">
                             <div className="loading-spinner"></div>
@@ -756,12 +756,12 @@ export default function MABpage() {
                                         <span className="volume-stat">Vol: {totalVolume.toLocaleString()}</span>
                                     </div>
                                 </div>
-                                
+
                                 <ResponsiveContainer width="100%" height={300}>
                                     <BarChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 20 }}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-                                        <XAxis 
-                                            dataKey="date" 
+                                        <XAxis
+                                            dataKey="date"
                                             tick={{ fill: '#bbb', fontSize: 10 }}
                                             angle={-45}
                                             textAnchor="end"
@@ -769,9 +769,9 @@ export default function MABpage() {
                                         />
                                         <YAxis tick={{ fill: '#bbb', fontSize: 10 }} />
                                         <Tooltip content={<CustomTooltip />} />
-                                        <Bar 
-                                            dataKey="changePercent" 
-                                            fill="#4CAF50" 
+                                        <Bar
+                                            dataKey="changePercent"
+                                            fill="#4CAF50"
                                             name="Daily Change %"
                                             radius={[4, 4, 0, 0]}
                                         />
@@ -788,7 +788,7 @@ export default function MABpage() {
                 <div className="section-card">
                     <h2>⏰ Daily Stock Analysis (Past 8 Hours)</h2>
                     <div className="stock-selector">
-                        <select 
+                        <select
                             onChange={(e) => e.target.value && loadStockData(e.target.value)}
                             className="stock-dropdown"
                         >
@@ -798,7 +798,7 @@ export default function MABpage() {
                             ))}
                         </select>
                     </div>
-                    
+
                     {loadingData && (
                         <div className="loading-container">
                             <div className="loading-spinner"></div>
@@ -824,21 +824,21 @@ export default function MABpage() {
                                         <span className="current-price">${data[data.length - 1]?.price.toFixed(2)}</span>
                                     </div>
                                 </div>
-                                
+
                                 <ResponsiveContainer width="100%" height={300}>
                                     <LineChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 20 }}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-                                        <XAxis 
-                                            dataKey="time" 
+                                        <XAxis
+                                            dataKey="time"
                                             tick={{ fill: '#bbb', fontSize: 10 }}
                                             interval="preserveStartEnd"
                                         />
                                         <YAxis tick={{ fill: '#bbb', fontSize: 10 }} />
                                         <Tooltip content={<CustomTooltip />} />
-                                        <Line 
-                                            type="monotone" 
-                                            dataKey="price" 
-                                            stroke="#2196F3" 
+                                        <Line
+                                            type="monotone"
+                                            dataKey="price"
+                                            stroke="#2196F3"
                                             strokeWidth={2}
                                             dot={{ fill: '#2196F3', strokeWidth: 2, r: 3 }}
                                             activeDot={{ r: 6, strokeWidth: 2, fill: '#FFC107' }}
